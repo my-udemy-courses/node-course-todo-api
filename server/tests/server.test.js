@@ -1,5 +1,6 @@
 const expect = require('expect');
 const request = require('supertest');
+const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
@@ -7,9 +8,18 @@ const {Todo} = require('./../models/todo');
 // prepare database, so for every new test session it has the same data!
 
 const dummyTodos = [
-    { text: "First test todo" },
-    { text: "Second test todo" },
-    { text: "Third test todo" }
+    { 
+        _id : new ObjectID(),
+        text: "First test todo"
+    },
+    { 
+        _id : new ObjectID(),
+        text: "Second test todo" 
+    },
+    { 
+        _id : new ObjectID(),
+        text: "Third test todo"
+    }
 ]
 
 beforeEach((done) => {
@@ -73,6 +83,34 @@ describe('GET /todos', () => {
             .expect((res) => {
                 expect(res.body.todos.length).toBe(dummyTodos.length);
             })
+            .end(done);
+    });
+});
+
+describe('GET /todos/:id', () => {
+    it('should return todo doc', (done) => {
+        request(app)
+            .get(`/todos/${dummyTodos[0]._id.toHexString()}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(dummyTodos[0].text);
+            })
+            .end(done);
+    });
+
+    it('should return 404 if todo not found', (done) => {
+        var falseID = new ObjectID().toHexString();
+        request(app)
+            .get(`/todos/${falseID}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it('should return 400 for non-object ids', (done) => {
+        var invalidID = "1234asdfb";
+        request(app)
+            .get(`/todos/${invalidID}`)
+            .expect(404)
             .end(done);
     });
 });
