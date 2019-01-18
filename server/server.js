@@ -55,10 +55,35 @@ app.get('/todos/:id', (req, res) => {
         .send({
             error: err
         });
-    })
+    });
+});
 
+app.delete('/todos/:id', (req, res) => {
+    // get the id
+    var id = req.params.id;
 
+    // validate the id -> not valid? return 404
+    if (!ObjectID.isValid(id)){
+        return res
+            .status(404)
+            .send({
+                error: `Invalid ObjectID: ${id}`
+            });
+    }
 
+    // remove todo by id
+    Todo.findByIdAndRemove(id).then((todo) => {
+        if (todo){
+            res.send(todo);
+        } else {
+            res.status(404).send({error: `Todo with ID: ${id} not found.`});
+        }
+    }).catch((err) => {
+        res.status(400)
+        .send({
+            error: err
+        });
+    });
 });
 
 // start the server
