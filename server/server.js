@@ -24,7 +24,7 @@ app.post('/todos', (req, res) => {
     }, (e) => {
         res.status(400).send(e);
     });
-})
+});
 
 app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
@@ -120,6 +120,20 @@ app.patch('/todos/:id', (req, res) => {
         res.status(400).send();
     });
 }); 
+
+// POST /users
+app.post('/users', (req, res) => {
+    var userBody = _.pick(req.body, ['email', 'password']);
+    var user = new User(userBody);
+
+    user.save().then((doc) => {
+        res.send({user: doc});
+    })
+    .catch((err) => {
+        res.status(400).send(err);
+    });
+
+});
 
 // start the server
 app.listen(port, () => {
