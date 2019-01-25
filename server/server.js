@@ -126,8 +126,14 @@ app.post('/users', (req, res) => {
     var userBody = _.pick(req.body, ['email', 'password']);
     var user = new User(userBody);
 
-    user.save().then((doc) => {
-        res.send({user: doc});
+    user.save().then(() => { // try to save new user object
+        // new user was created. now generate auth token and save again, then return promise
+        return user.generateAuthToken();
+    })
+    .then((token) => {
+        // updating user with token in database was successfull
+        res.header('x-auth', token)
+            .send(user);
     })
     .catch((err) => {
         res.status(400).send(err);
