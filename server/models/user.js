@@ -39,7 +39,7 @@ UserSchema.methods.toJSON = function () {
     return _.pick(userObject, ['_id', 'email']);
 };
 
-// add new method 'genereateAuthToken' to mongoose schema object
+// add new method 'generateAuthToken' to mongoose schema object
 UserSchema.methods.generateAuthToken = function () {
     // we have to use regular function () syntax to be able to reference the "this" keyword. Arrow-functions () => dont bind the "this" keyword so its more difficult to get the instance
     var user = this;
@@ -51,11 +51,31 @@ UserSchema.methods.generateAuthToken = function () {
     }, 'abc123') // last parameter is our secret aka salt.
     .toString();
 
-    // add the token to the user instance
-    user.tokens.concat([{access, token}]);
+    // Add the token to the user instance
+    user.tokens = user.tokens.concat([{access, token}]);
 
     return user.save().then(() => {
         return token;
+    });
+};
+
+UserSchema.statics.findByToken = function (token) {
+    var User = this;
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (e) {
+        // return new Promise((resolve, reject) => {
+        //     reject();
+        // });
+        return Promise.reject();
+    }
+
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token, // nested property search must be in quotes because of the dot
+        'tokens.access': 'auth'
     });
 };
 
