@@ -127,7 +127,8 @@ app.post('/users', (req, res) => {
     var user = new User(userBody);
 
     user.save().then(() => { // try to save new user object
-        // new user was created. now generate auth token and save again, then return promise
+        // New user was created. 
+        // Now generate auth token and save again, then return promise
         return user.generateAuthToken();
     })
     .then((token) => {
