@@ -4,36 +4,10 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {dummyTodos, populateTodos, dummyUsers, populateUsers} = require('./seed/seed');
 
-// prepare database, so for every new test session it has the same data!
-
-const dummyTodos = [
-    { 
-        _id : new ObjectID(),
-        text: "First test todo"
-    },
-    { 
-        _id : new ObjectID(),
-        text: "Second test todo",
-        completed: true,
-        completedAt: 333
-    },
-    { 
-        _id : new ObjectID(),
-        text: "Third test todo"
-    }
-]
-
-beforeEach((done) => {
-    // First clear entire Todos collection
-    Todo.remove({})
-    // Then insert dummy collection
-    .then(() => {
-        return Todo.insertMany(dummyTodos);
-    })
-    // Then we are done
-    .then(() => done());
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
