@@ -135,7 +135,7 @@ app.post('/users', (req, res) => {
     .then((token) => {
         // updating user with token in database was successfull
         res.header('x-auth', token)
-            .send(user);
+            .send({user});
     })
     .catch((err) => {
         res.status(400).send(err);

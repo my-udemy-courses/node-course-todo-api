@@ -33,8 +33,8 @@ const populateTodos = (done) => {
     .then(() => done());
 };
 
-const userOneId = new ObjectID().toHexString();
-const userTwoId = new ObjectID().toHexString();
+const userOneId = new ObjectID();
+const userTwoId = new ObjectID();
 const dummyUsers = [
     { // first is valid with a token
         _id: userOneId,
