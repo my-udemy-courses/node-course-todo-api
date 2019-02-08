@@ -60,6 +60,18 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
+// add new instance method
+UserSchema.methods.removeToken = function (token) {
+    var user = this;
+
+    return user.update({
+        $pull: { // remove some properties
+            tokens: {token}
+        }
+    });
+};
+
+// add static method to User class
 UserSchema.statics.findByToken = function (token) {
     var User = this;
     var decoded;
