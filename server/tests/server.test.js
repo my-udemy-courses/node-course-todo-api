@@ -285,25 +285,40 @@ describe('POST /users/login', () => {
     
     it('should reject invalid login', (done) => {
         request(app)
-        .post('/users/login')
-        .send({
-            email: dummyUsers[1].email,
-            password: dummyUsers[1].password + "nah"
-        })
-        .expect(400)
-        .expect((res) => {
-            expect(res.headers['x-auth']).toNotExist();
-        })
-        .end((err, res) => {
-            if (err) {
-                return done(err);
-            }
+            .post('/users/login')
+            .send({
+                email: dummyUsers[1].email,
+                password: dummyUsers[1].password + "nah"
+            })
+            .expect(400)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toNotExist();
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
 
-            User.findById(dummyUsers[1]._id).then((user) => {
-                expect(user.tokens.length).toBe(0);
-                done();
-            }).catch((e) => done(e));
-        });
+                User.findById(dummyUsers[1]._id).then((user) => {
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch((e) => done(e));
+            });
     });
 
+});
+
+describe('DELETE /users/me/token', () => {
+    it('should delete user auth token', (done) => {
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', dummyUsers[0].tokens[0].token)
+            .expect(200)
+            .end((err, res) => {
+                User.findById(dummyUsers[0]._id).then((user) => {
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch((e) => done(e));
+            });
+    });
 });
