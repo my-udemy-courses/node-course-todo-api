@@ -4,23 +4,48 @@ const jwt = require('jsonwebtoken');
 const {Todo} = require('../../models/todo');
 const {User} = require('../../models/user');
 
-// prepare database, so for every new test session it has the same data!
+// prepare aka seed the database, so for every new test session it has the same data!
+const userOneId = new ObjectID();
+const userTwoId = new ObjectID();
+const dummyUsers = [
+    { // first is valid with a token
+        _id: userOneId,
+        email: 'arthur@example.com',
+        password: 'userOnePass',
+        tokens: [{
+            access: 'auth',
+            token: jwt.sign({_id: userOneId, access: 'auth'}, 'abc123').toString()
+        }]
+    },{ 
+        _id: userTwoId,
+        email: 'jutta@example.com',
+        password: 'userTwoPass',
+        tokens: [{
+            access: 'auth',
+            token: jwt.sign({_id: userTwoId, access: 'auth'}, 'abc123').toString()
+        }]
+    }
+];
+
 const dummyTodos = [
     { 
         _id : new ObjectID(),
-        text: "First test todo"
+        text: "First test todo",
+        _creator: userOneId
     },
     { 
         _id : new ObjectID(),
         text: "Second test todo",
         completed: true,
-        completedAt: 333
+        completedAt: 333,
+        _creator: userTwoId
     },
     { 
         _id : new ObjectID(),
-        text: "Third test todo"
+        text: "Third test todo",
+        _creator: userTwoId
     }
-]
+];
 
 const populateTodos = (done) => {
     // First clear entire Todos collection
@@ -33,23 +58,6 @@ const populateTodos = (done) => {
     .then(() => done());
 };
 
-const userOneId = new ObjectID();
-const userTwoId = new ObjectID();
-const dummyUsers = [
-    { // first is valid with a token
-        _id: userOneId,
-        email: 'arthur@example.com',
-        password: 'userOnePass',
-        tokens: [{
-            access: 'auth',
-            token: jwt.sign({_id: userOneId, access: 'auth'}, 'abc123').toString()
-        }]
-    },{ // second has no token
-        _id: userTwoId,
-        email: 'jutta@example.com',
-        password: 'userTwoPass'
-    }
-];
 
 const populateUsers = (done) => {
     User.remove({}).then(() => {
