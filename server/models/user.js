@@ -49,7 +49,7 @@ UserSchema.methods.generateAuthToken = function () {
     var token = jwt.sign({ // first param object is the payload, which can be read by everyone
         _id: user._id.toHexString(), 
         access
-    }, 'abc123') // last parameter is our secret aka salt.
+    }, process.env.JWT_SECRET) // last parameter is our secret aka salt.
     .toString();
 
     // Add the token to the user instance
@@ -77,7 +77,7 @@ UserSchema.statics.findByToken = function (token) {
     var decoded;
 
     try {
-        decoded = jwt.verify(token, 'abc123');
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
         // return new Promise((resolve, reject) => {
         //     reject();
